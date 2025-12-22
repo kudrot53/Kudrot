@@ -1,0 +1,75 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(ownerId) {
+      return signedIn() && request.auth.uid == ownerId;
+    }
+
+    function travelDoc(travelId) {
+      return get(/databases/$(database)/documents/travels/$(travelId));
+    }
+
+    match /users/{uid} {
+  // allow the user to create their own profile doc after signup
+  allow create: if signedIn() && request.auth.uid == uid;
+
+  // keep private profile locked to owner
+  allow read, update, delete: if isOwner(uid);
+
+  match /achievements/{achievementId} {
+    allow read, write: if isOwner(uid);
+  }
+}
+
+// public profiles readable by signed-in users (or by everyone if you want)
+match /publicUsers/{uid} {
+  allow read: if signedIn();           // or: if true;
+  allow write: if isOwner(uid);
+}
+
+
+    match /destinations/{destId} {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    match /travels/{travelId} {
+      allow read: if resource.data.isPublic == true || isOwner(resource.data.userId);
+      allow create: if signedIn() && request.resource.data.userId == request.auth.uid;
+      allow update, delete: if isOwner(resource.data.userId);
+
+      match /itineraryItems/{itemId} {
+        allow read: if travelDoc(travelId).exists() && (travelDoc(travelId).data.isPublic == true ||
+          isOwner(travelDoc(travelId).data.userId));
+        allow write: if travelDoc(travelId).exists() && isOwner(travelDoc(travelId).data.userId);
+      }
+
+      match /tripPlans/{planId} {
+        allow read, write: if travelDoc(travelId).exists() && isOwner(travelDoc(travelId).data.userId);
+
+        match /plannedActivities/{activityId} {
+          allow read, write: if travelDoc(travelId).exists() && isOwner(travelDoc(travelId).data.userId);
+        }
+      }
+
+      match /sharedAccess/{shareId} {
+        allow read, write: if travelDoc(travelId).exists() && isOwner(travelDoc(travelId).data.userId);
+      }
+    }
+
+    match /reviews/{reviewId} {
+      allow read: if true;
+      allow create: if signedIn();
+      allow update, delete: if isOwner(resource.data.authorUid);
+    }
+
+    match /achievements/{achievementId} {
+      allow read: if true;
+      allow write: if false;
+    }
+  }
+}

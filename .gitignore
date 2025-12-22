@@ -1,0 +1,22 @@
+# Python
+__pycache__/
+*.py[cod]
+.Python
+.venv
+env/
+venv/
+
+# Node / frontend
+node_modules/
+dist/
+.turbo/
+
+# Environment / secrets
+.env
+.env.local
+backend/.env
+backend/.env.xampp
+
+# OS / misc
+.DS_Store
+Thumbs.db
