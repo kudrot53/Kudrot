@@ -1,0 +1,20 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Main",
+            "request": "launch",
+            "mainClass": "cafe.Main",
+            "projectName": "CafeManagementSystem final_1223977e"
+        },
+        {
+            "type": "java",
+            "name": "☕ Run Cafe Management System",
+            "request": "launch",
+            "mainClass": "cafe.Main",
+            "projectName": "CafeManagementSystem",
+            "console": "integratedTerminal"
+        }
+    ]
+}
